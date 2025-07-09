@@ -5,11 +5,11 @@ import { Router } from '@angular/router';
   selector: 'app-page-not-found',
   imports: [],
   template: `
-    <div class="flex flex-col items-center justify-center h-screen  text-center">
-      <h1 class="text-9xl font-extrabold text-gray-100 mb-4">404</h1>
-      <p class="text-xl text-gray-300 mb-6">Oops! The page you are looking for does't exist.</p>
+    <div class="flex flex-col items-center justify-center h-screen">
+      <h1 class="text-6xl font-bold text-gray-100 mb-4">404</h1>
+      <p class="text-lg text-white-100 mb-6">Page not found</p>
       <button
-        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 cursor-pointer"
+        class="btn btn-primary text-white"
         (click)="goToHome()"
       >
         Back to Home
