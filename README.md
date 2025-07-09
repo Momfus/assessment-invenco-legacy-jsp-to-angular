@@ -1,5 +1,129 @@
 # AssessmentInvencoLegacyJspToAngular
 
+# Task Details
+
+## Context
+
+You are working on a legacy J2EE project that uses Struts, JSP, and Spring. We’re gradually migrating parts of the UI to Angular. Your task is to rewrite a JSP-based user search page in Angular while maintaining the original functionality and integrating with a REST API.
+
+## Part 1: Legacy Reference Code (What We’re Replacing)
+
+### searchUser.jsp
+``` html
+  <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %> <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+  <html>
+
+  <head><title>User Search</title></head><body>
+
+  <h2>Search Users</h2>
+
+  <html:form action="/searchUser">
+
+  Name: <html:text property="name" />
+
+  Email: <html:text property="email" />
+
+  <html:submit value="Search" />
+
+  </html:form>
+
+  <c:if test="${not empty users}">
+
+  <table border="1">
+
+  <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+
+  <c:forEach var="user" items="${users}">
+
+  <tr>
+
+  <td>${user.id}</td>
+
+  <td>${user.name}</td>
+
+  <td>${user.email}</td>
+
+  </tr>
+
+  </c:forEach>
+
+  </table>
+
+  </c:if>
+
+  </body>
+
+  </html>
+```
+### Backend Flow
+
+* Form submits to /searchUser.do
+* SearchUserAction invokes UserService.searchUsers(name, email)
+* Sets list of users in request scope: request.setAttribute("users", resultList)
+
+## Parte 2: Task - Rebuild in Angular
+
+### Goal
+
+Rebuild this page as an Angular component with form inputs and table, consuming a REST API: 
+
+``` bash
+GET /api/users?name=John&email=john@example.com
+```
+
+### Expected Angular Delivarables
+* user-search.component.ts/.html/.scss
+* user.service.ts
+* (Optional) user-search.component.spec.ts
+* Use Reactive Forms (preferred) or Template-driven forms
+
+## Requeriments
+
+1. Form Fields
+
+  * Name (text input)
+
+  * Email (text input)
+
+  * Search button
+
+2. Table Output
+
+  *  Display: ID, Name, Email
+
+3. Behavior
+
+  *  Show spinner while loading
+
+  * Handle empty results
+
+  * Show error message on API failure
+
+4. Optional Enhancements
+
+  * Unit test the component and service
+
+  * Add pagination if comfortable
+
+5. Use a UI library of your preference for styling
+
+## Parte 3: API Reference (Mocked)
+You can mock this using JSON Server, Angular In-Memory Web API, or provide fake data in a UserService.
+
+``` bash
+GET /api/users?name=John&email=john@example.com
+```
+
+Response:
+``` json
+[ 
+  { "id": 1, "name": "John Doe", "email": "john@example.com" }, 
+  { "id": 2, "name": "Johnny Bravo", "email": "johnny@example.com" }
+]
+```
+
+# Commands
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.1.
 
 ## Development server
@@ -36,24 +160,4 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
