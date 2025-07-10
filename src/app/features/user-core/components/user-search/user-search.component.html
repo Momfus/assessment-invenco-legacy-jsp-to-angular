@@ -1,12 +1,11 @@
-<div class="container mx-auto p-6">
+<div class="container mx-auto">
   <div class="max-w-6xl mx-auto">
-    <!-- Header -->
+
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-accent mb-2">Search Users</h1>
       <p class="text-accent">Search for users by name or email address</p>
     </div>
 
-    <!-- Search Form -->
     <div class="bg-accent-content rounded-lg shadow-md p-6 mb-6">
       <div [formGroup]="searchForm" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -38,88 +37,13 @@
           <button
             type="button"
             class="btn btn-outline"
-            (click)="clearSearch()"
-            [disabled]="!hasActiveSearch() || userResource.isLoading()"
+            (click)="onClearSearch()"
+            [disabled]="!hasActiveSearch()"
           >
             Clear filters
           </button>
         </div>
       </div>
     </div>
-
-    <!-- Loading State -->
-     @if (userResource.isLoading()) {
-       <div class="flex justify-center items-center py-12">
-         <div class="text-center">
-           <span class="loading loading-spinner loading-lg text-primary"></span>
-           <p class="mt-4 text-gray-100">Searching for users...</p>
-         </div>
-       </div>
-     }
-
-    <!-- Error State -->
-     @if (userResource.error() && !userResource.isLoading()) {
-       <div class="alert alert-error mb-6">
-         <span>{{ userResource.error() }}</span>
-       </div>
-     }
-
-    <!-- Results Section -->
-    @if (!userResource.isLoading()) {
-      <div class="bg-accent-content rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 ">
-          <h2 class="text-xl font-semibold text-accent">
-            Search Results
-            @if ((userResource.value() ?? []).length > 0) {
-              <span class="text-sm font-normal text-gray-200 ml-2">
-                ({{ (userResource.value() ?? []).length }} user{{ (userResource.value() ?? []).length !== 1 ? 's' : '' }} found)
-              </span>
-            }
-          </h2>
-        </div>
-
-        <!-- Empty Results -->
-         @if ((userResource.value() ?? []).length === 0 && !userResource.error()) {
-           <div class="px-6 py-12 text-center">
-             <div class="text-gray-400 mb-4">
-             </div>
-             <h3 class="text-lg font-medium text-accent mb-2">No users found</h3>
-             <p class="text-gray-100">Try adjusting your search criteria</p>
-           </div>
-         }
-
-        <!-- Results Table -->
-         @if ((userResource.value() ?? []).length > 0) {
-           <div class="overflow-x-auto">
-             <table class="table table-zebra w-full">
-               <thead>
-                 <tr class="bg-warning">
-                   <th class="font-semibold text-gray-700">ID</th>
-                   <th class="font-semibold text-gray-700">Name</th>
-                   <th class="font-semibold text-gray-700">Email</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 @for (user of (userResource.value() ?? []); track user.id) {
-                   <tr class="hover:bg-warning hover:text-black hover:font-bold cursor-pointer">
-                     <td class="font-mono text-sm">{{ user.id }}</td>
-                     <td class="font-medium">{{ user.name }}</td>
-                     <td>
-                       <a
-                         href="mailto:{{ user.email }}"
-                         class="text-blue-600 hover:text-blue-800 hover:underline"
-                       >
-                         {{ user.email }}
-                       </a>
-                     </td>
-                   </tr>
-                 }
-               </tbody>
-             </table>
-           </div>
-         }
-      </div>
-    }
-
   </div>
 </div>

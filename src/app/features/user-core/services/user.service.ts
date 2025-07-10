@@ -6,6 +6,19 @@ import { environment } from 'src/environments/environment';
 
 const baseUrl = environment.baseUrl;
 
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,28 +26,29 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-
-  searchUsers(params: UserSearchParams): Observable<User[]> {
-
+  searchUsers(params: UserSearchParams, pagination?: PaginationParams): Observable<PaginatedResponse<User>> {
     return this.http.get<User[]>(`${baseUrl}/users`)
       .pipe(
         delay(this.getRandomDelay()),
-        map(users => this.filterUsers(users, params)),
+        map(users => {
+          const filteredUsers = this.filterUsers(users, params);
+          return this.paginateUsers(filteredUsers, pagination);
+        }),
         catchError((error) => {
           console.error('API Error:', error);
-          return of([]);
+          return of({ data: [], total: 0, page: 1, limit: 10, totalPages: 0 });
         })
       );
   }
 
-
-  getAllUsers(): Observable<User[]> {
+  getAllUsers(pagination?: PaginationParams): Observable<PaginatedResponse<User>> {
     return this.http.get<User[]>(`${baseUrl}/users`)
       .pipe(
         delay(this.getRandomDelay()),
+        map(users => this.paginateUsers(users, pagination)),
         catchError((error) => {
           console.error('API Error:', error);
-          return of([]);
+          return of({ data: [], total: 0, page: 1, limit: 10, totalPages: 0 });
         })
       );
   }
@@ -57,6 +71,25 @@ export class UserService {
     }
 
     return filteredUsers;
+  }
+
+  private paginateUsers(users: User[], pagination?: PaginationParams): PaginatedResponse<User> {
+    const page = pagination?.page || 1;
+    const limit = pagination?.limit || 10;
+    const total = users.length;
+    const totalPages = Math.ceil(total / limit);
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const data = users.slice(startIndex, endIndex);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages
+    };
   }
 
   private getRandomDelay(): number {

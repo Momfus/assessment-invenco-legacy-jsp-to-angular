@@ -1,10 +1,9 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../services/user.service';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { UserSearchParams } from '../../interfaces/user.interface';
 
 @Component({
   selector: 'app-user-search',
@@ -14,7 +13,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 })
 export class UserSearchComponent {
   private fb = inject(FormBuilder);
-  private userService = inject(UserService);
+
+  searchParamsChanged = output<UserSearchParams>()
+  clearSearch = output<void>()
 
   searchForm = this.fb.group({
     name: [''],
@@ -25,7 +26,7 @@ export class UserSearchComponent {
 
   formValues = toSignal(
     this.searchForm.valueChanges.pipe(
-      debounceTime(300), // 300ms debounce
+      debounceTime(300),
       distinctUntilChanged((prev, curr) =>
         prev.name === curr.name && prev.email === curr.email
       )
@@ -42,27 +43,26 @@ export class UserSearchComponent {
     return this.hasSearchedWithFilters() && !this.isFormEmpty();
   });
 
-  userResource = rxResource({
-    params: () => {
-      const { name, email } = this.formValues();
-      return {
-        name: name ?? undefined,
-        email: email ?? undefined,
-      };
-    },
-    stream: ({ params }) => {
-      if (!params.name && !params.email) {
+  constructor() {
+    effect(() => {
+      const values = this.formValues();
+      const { name, email } = values;
+      if (!name && !email) {
         this.hasSearchedWithFilters.set(false);
-        return this.userService.getAllUsers();
+        this.searchParamsChanged.emit({ name: undefined, email: undefined });
+      } else {
+        this.hasSearchedWithFilters.set(true);
+        this.searchParamsChanged.emit({
+          name: name || undefined,
+          email: email || undefined
+        });
       }
-      this.hasSearchedWithFilters.set(true);
-      return this.userService.searchUsers(params);
-    }
-  });
+    });
+  }
 
-  clearSearch() {
+  onClearSearch() {
     this.searchForm.reset();
     this.hasSearchedWithFilters.set(false);
-    this.userResource.reload();
+    this.clearSearch.emit();
   }
 }
