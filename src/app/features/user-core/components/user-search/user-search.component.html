@@ -1,0 +1,49 @@
+<div class="container mx-auto">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-accent mb-2">Search Users</h1>
+      <p class="text-accent">Search for users by name or email address</p>
+    </div>
+
+    <div class="bg-accent-content rounded-lg shadow-md p-6 mb-6">
+      <div [formGroup]="searchForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Name:</span>
+            </label>
+            <input
+              type="text"
+              formControlName="name"
+              class="input input-bordered w-full"
+              placeholder="Enter name to search"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Email:</span>
+            </label>
+            <input
+              type="email"
+              formControlName="email"
+              class="input input-bordered w-full"
+              placeholder="Enter email to search"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button
+            type="button"
+            class="btn btn-outline"
+            (click)="onClearSearch()"
+            [disabled]="!hasActiveSearch()"
+          >
+            Clear filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

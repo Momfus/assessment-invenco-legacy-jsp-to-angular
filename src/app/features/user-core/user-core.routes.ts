@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { PageNotFoundComponent } from "../../shared/pageNotFound/pageNotFound.component";
 import { UserLayoutComponent } from "./layouts/user-layout/user-layout.component";
-import { UserSearchComponent } from "./pages/user-search/user-search.component";
+import { UserPageComponent } from "./pages/user-page/user-page.component";
 
 
 export const userCoreRoutes: Routes = [
@@ -11,7 +11,7 @@ export const userCoreRoutes: Routes = [
     children: [
       {
         path: '',
-        component: UserSearchComponent
+        component: UserPageComponent
       },
       {
         path: '**' ,

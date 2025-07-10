@@ -161,3 +161,52 @@ ng build
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
 
+# API Setup with JSON Server
+
+## Overview
+
+This project uses JSON Server to simulate a REST API for user search functionality.
+
+## Current Setup
+
+### JSON Server Configuration
+
+- **Port**: 3001
+- **Base URL**: `http://localhost:3001`
+- **Endpoint**: `GET /users`
+
+### Files
+
+- `db.json` - Mock data for users
+- `routes.json` - Route mapping for JSON Server
+
+## Running the Application
+
+### Option 1: Run both servers simultaneously
+```bash
+npm run dev
+```
+This will start both the Angular dev server (port 4200) and JSON Server (port 3001).
+
+### Option 2: Run servers separately
+```bash
+# Terminal 1: Start JSON Server
+npm run api
+
+# Terminal 2: Start Angular app
+npm start
+```
+
+## API Endpoints
+
+### Search Users
+```
+GET /users
+```
+
+### Get All Users
+```
+GET /api/users
+```
+
+
