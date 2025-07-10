@@ -6,9 +6,11 @@
   />
 
   <app-user-list
-    [users]="userResource.value() ?? []"
+    [users]="userResource.value()?.data ?? []"
     [isLoading]="userResource.isLoading()"
     [error]="userResource.error()"
     [hasActiveSearch]="!!(searchParams().name || searchParams().email)"
+    [paginationData]="userResource.value()"
+    (pageChanged)="onPageChanged($event)"
   />
 </section>

@@ -15,29 +15,44 @@ export class UserPageComponent {
   private userService = inject(UserService);
 
   searchParams = signal<UserSearchParams>({ name: undefined, email: undefined });
+  currentPage = signal(1);
+  itemsPerPage = 10;
 
   userResource = rxResource({
-    params: () => this.searchParams(),
-    stream: ({ params }) => {
-      if (!params.name && !params.email) {
-        return this.userService.getAllUsers();
+    params: () => ({
+      searchParams: this.searchParams(),
+      pagination: {
+        page: this.currentPage(),
+        limit: this.itemsPerPage
       }
-      return this.userService.searchUsers(params);
+    }),
+    stream: ({ params }) => {
+      if (!params.searchParams.name && !params.searchParams.email) {
+        return this.userService.getAllUsers(params.pagination);
+      }
+      return this.userService.searchUsers(params.searchParams, params.pagination);
     }
   });
 
   constructor() {
     effect(() => {
       this.searchParams();
+      this.currentPage();
       this.userResource.reload();
     });
   }
 
   onSearchParamsChanged(params: UserSearchParams) {
     this.searchParams.set(params);
+    this.currentPage.set(1);
   }
 
   onClearSearch() {
     this.searchParams.set({ name: undefined, email: undefined });
+    this.currentPage.set(1);
+  }
+
+  onPageChanged(page: number) {
+    this.currentPage.set(page);
   }
 }
