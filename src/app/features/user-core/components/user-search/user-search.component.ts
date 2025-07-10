@@ -1,61 +1,68 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, signal, computed } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
-import { User } from '../../interfaces/user.interface';
-import { catchError, finalize } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-search',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './user-search.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserSearchComponent {
-
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
 
-  users = signal<User[]>([]);
-  isLoading = signal(false);
-  error = signal<string | null>(null);
-
-  searchForm: FormGroup = this.fb.group({
+  searchForm = this.fb.group({
     name: [''],
     email: [''],
   });
 
-  onSubmit() {
-    if (this.searchForm.valid) {
-      this.performSearch();
-    }
-  }
+  hasSearchedWithFilters = signal(false);
 
-  private performSearch() {
-    const searchParams = this.searchForm.value;
-
-    // Reset states
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    this.userService.searchUsers(searchParams)
-      .pipe(
-        catchError((error: Error) => {
-          this.error.set(error.message);
-          return [];
-        }),
-        finalize(() => {
-          this.isLoading.set(false);
-        })
+  formValues = toSignal(
+    this.searchForm.valueChanges.pipe(
+      debounceTime(300), // 300ms debounce
+      distinctUntilChanged((prev, curr) =>
+        prev.name === curr.name && prev.email === curr.email
       )
-      .subscribe(users => {
-        this.users.set(users);
-      });
-  }
+    ),
+    { initialValue: { name: '', email: '' } }
+  );
+
+  isFormEmpty = computed(() => {
+    const { name, email } = this.formValues();
+    return !name && !email;
+  });
+
+  hasActiveSearch = computed(() => {
+    return this.hasSearchedWithFilters() && !this.isFormEmpty();
+  });
+
+  userResource = rxResource({
+    params: () => {
+      const { name, email } = this.formValues();
+      return {
+        name: name ?? undefined,
+        email: email ?? undefined,
+      };
+    },
+    stream: ({ params }) => {
+      if (!params.name && !params.email) {
+        this.hasSearchedWithFilters.set(false);
+        return this.userService.getAllUsers();
+      }
+      this.hasSearchedWithFilters.set(true);
+      return this.userService.searchUsers(params);
+    }
+  });
 
   clearSearch() {
     this.searchForm.reset();
-    this.users.set([]);
-    this.error.set(null);
+    this.hasSearchedWithFilters.set(false);
+    this.userResource.reload();
   }
 }

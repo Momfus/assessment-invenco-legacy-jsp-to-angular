@@ -8,11 +8,7 @@
 
     <!-- Search Form -->
     <div class="bg-accent-content rounded-lg shadow-md p-6 mb-6">
-      <form
-        [formGroup]="searchForm"
-        (ngSubmit)="onSubmit()"
-        class="space-y-4"
-      >
+      <div [formGroup]="searchForm" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label">
@@ -40,29 +36,19 @@
 
         <div class="flex gap-3 pt-2">
           <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="isLoading()"
-          >
-            @if (isLoading()) {
-              <span class="loading loading-spinner loading-sm"></span>
-            }
-            {{ isLoading() ? 'Searching...' : 'Search' }}
-          </button>
-          <button
             type="button"
             class="btn btn-outline"
             (click)="clearSearch()"
-            [disabled]="isLoading()"
+            [disabled]="!hasActiveSearch() || userResource.isLoading()"
           >
-            Clear
+            Clear filters
           </button>
         </div>
-      </form>
+      </div>
     </div>
 
     <!-- Loading State -->
-     @if (isLoading()) {
+     @if (userResource.isLoading()) {
        <div class="flex justify-center items-center py-12">
          <div class="text-center">
            <span class="loading loading-spinner loading-lg text-primary"></span>
@@ -72,28 +58,28 @@
      }
 
     <!-- Error State -->
-     @if (error() && !isLoading()) {
+     @if (userResource.error() && !userResource.isLoading()) {
        <div class="alert alert-error mb-6">
-         <span>{{ error() }}</span>
+         <span>{{ userResource.error() }}</span>
        </div>
      }
 
     <!-- Results Section -->
-    @if (!isLoading()) {
+    @if (!userResource.isLoading()) {
       <div class="bg-accent-content rounded-lg shadow-md overflow-hidden">
         <div class="px-6 py-4 ">
           <h2 class="text-xl font-semibold text-accent">
             Search Results
-            @if (users().length > 0) {
+            @if ((userResource.value() ?? []).length > 0) {
               <span class="text-sm font-normal text-gray-200 ml-2">
-                ({{ users().length }} user{{ users().length !== 1 ? 's' : '' }} found)
+                ({{ (userResource.value() ?? []).length }} user{{ (userResource.value() ?? []).length !== 1 ? 's' : '' }} found)
               </span>
             }
           </h2>
         </div>
 
         <!-- Empty Results -->
-         @if (users().length === 0 && !error()) {
+         @if ((userResource.value() ?? []).length === 0 && !userResource.error()) {
            <div class="px-6 py-12 text-center">
              <div class="text-gray-400 mb-4">
              </div>
@@ -103,7 +89,7 @@
          }
 
         <!-- Results Table -->
-         @if (users().length > 0) {
+         @if ((userResource.value() ?? []).length > 0) {
            <div class="overflow-x-auto">
              <table class="table table-zebra w-full">
                <thead>
@@ -114,7 +100,7 @@
                  </tr>
                </thead>
                <tbody>
-                 @for (user of users(); track user.id) {
+                 @for (user of (userResource.value() ?? []); track user.id) {
                    <tr class="hover:bg-warning hover:text-black hover:font-bold cursor-pointer">
                      <td class="font-mono text-sm">{{ user.id }}</td>
                      <td class="font-medium">{{ user.name }}</td>
