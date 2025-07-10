@@ -1,0 +1,14 @@
+
+<section class="p-6">
+  <app-user-search
+    (searchParamsChanged)="onSearchParamsChanged($event)"
+    (clearSearch)="onClearSearch()"
+  />
+
+  <app-user-list
+    [users]="userResource.value() ?? []"
+    [isLoading]="userResource.isLoading()"
+    [error]="userResource.error()"
+    [hasActiveSearch]="!!(searchParams().name || searchParams().email)"
+  />
+</section>
